@@ -1,0 +1,41 @@
+.tooltip-notes-word {
+  text-decoration: underline dotted;
+  font-weight: bold;
+  position: relative;
+}
+
+.tooltip-notes-word:hover .tooltip-notes-tooltip {
+  display: block
+}
+
+/* we just want the tooltip to live in its own world */
+/* .tooltip-notes-tooltip * {
+  all: initial;
+} */
+
+.tooltip-notes-tooltip {
+  /* usually an antipattern, but we need it here */
+  all: initial;
+  position: absolute;
+  bottom: 16px;
+  left: 0;
+  width: 200px;
+  display: none;
+  padding: 6px;
+  border: 1px solid lightgray;
+  border-radius: 6px;
+  background-color: white;
+  z-index: 1000;
+  /* font styles */
+  color: black;
+  font-weight: normal;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.tooltip-notes-subject {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 4px;
+}

@@ -1,51 +1,80 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+import { Note, readNotesFromStorage } from "./localStorageNotes";
+import { v4 as uuidv4 } from "uuid";
 
-const Popup = () => {
-  const [count, setCount] = useState(0);
-  const [currentURL, setCurrentURL] = useState<string>();
-
+const useNotes = (): {
+  notes: Note[];
+  setNotes: (newVal: Note[]) => void;
+} => {
+  const [notes, setNotesInner] = useState<Note[]>([]);
   useEffect(() => {
-    chrome.action.setBadgeText({ text: count.toString() });
-  }, [count]);
-
-  useEffect(() => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      setCurrentURL(tabs[0].url);
-    });
+    readNotesFromStorage().then((notes) => setNotesInner(notes));
   }, []);
 
-  const changeBackground = () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-      const tab = tabs[0];
-      if (tab.id) {
-        chrome.tabs.sendMessage(
-          tab.id,
-          {
-            color: "#555555",
-          },
-          (msg) => {
-            console.log("result message:", msg);
-          }
-        );
-      }
-    });
+  const setNotes = (newNotes: Note[]) => {
+    console.log(newNotes);
+    chrome.storage.local.set({ "tooltip-notes": JSON.stringify(newNotes) });
+    setNotesInner(newNotes);
   };
 
+  return {
+    notes,
+    setNotes,
+  };
+};
+
+const Popup = () => {
+  const { notes, setNotes } = useNotes();
+  console.log(notes);
+
   return (
-    <>
-      <ul style={{ minWidth: "700px" }}>
-        <li>Current URL: {currentURL}</li>
-        <li>Current Time: {new Date().toLocaleTimeString()}</li>
-      </ul>
+    <div>
+      {notes.map((note) => (
+        <>
+          <input
+            value={note.subject}
+            onChange={(e) => {
+              const newSubject = e.currentTarget.value;
+              setNotes(
+                // TODO: this is super lazy lol, maybe an id?
+                notes.map((n) =>
+                  n.subject === note.subject ? { ...n, subject: newSubject } : n
+                )
+              );
+            }}
+          />
+          <button
+            onClick={() =>
+              setNotes(notes.filter((n) => n.subject !== note.subject))
+            }
+          >
+            X
+          </button>
+          <textarea
+            value={note.description}
+            onChange={(e) => {
+              const newText = e.currentTarget.value;
+              setNotes(
+                // TODO: this is super lazy lol, maybe an id?
+                notes.map((n) =>
+                  n.subject === note.subject
+                    ? { ...n, description: newText }
+                    : n
+                )
+              );
+            }}
+          />
+        </>
+      ))}
       <button
-        onClick={() => setCount(count + 1)}
-        style={{ marginRight: "5px" }}
+        onClick={() =>
+          setNotes([...notes, { id: uuidv4(), subject: "", description: "" }])
+        }
       >
-        count up
+        New note
       </button>
-      <button onClick={changeBackground}>change background</button>
-    </>
+    </div>
   );
 };
 
