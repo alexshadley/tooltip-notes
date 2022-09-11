@@ -71,6 +71,8 @@ const CategoryDropdown = ({
   );
 };
 
+const NewNote = () => {};
+
 const Popup = () => {
   const { notes, setNotes } = useNotes();
   const categories = [
