@@ -1,7 +1,12 @@
+/**
+ * Persisted to local storage. Don't add new non-optional properties to retain
+ * reverse compatability
+ */
 export type Note = {
   id: string;
   subject: string;
   description: string;
+  category?: string | null;
 };
 
 export const readNotesFromStorage = async (): Promise<Note[]> => {

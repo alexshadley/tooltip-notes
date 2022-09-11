@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { Note, readNotesFromStorage } from "./localStorageNotes";
 import { v4 as uuidv4 } from "uuid";
+import { Button, Dropdown, DropdownButton, Form } from "react-bootstrap";
 
 const useNotes = (): {
   notes: Note[];
@@ -24,56 +25,128 @@ const useNotes = (): {
   };
 };
 
+const CategoryDropdown = ({
+  currentCategory,
+  categories,
+  onChange,
+  allowCustom,
+}: {
+  currentCategory: string | null;
+  categories: string[];
+  onChange: (newCategory: string | null) => void;
+  allowCustom?: boolean;
+}) => {
+  const [customCategory, setCustomCategory] = useState<string | null>(null);
+
+  return (
+    <>
+      <DropdownButton title={currentCategory ?? "Uncategorized"}>
+        <Dropdown.Item onClick={() => onChange(null)}>
+          Uncategorized
+        </Dropdown.Item>
+        {categories.map((c) => (
+          <Dropdown.Item onClick={() => onChange(c)}>{c}</Dropdown.Item>
+        ))}
+        {allowCustom && (
+          <Dropdown.Item onClick={() => setCustomCategory("")}>
+            Custom
+          </Dropdown.Item>
+        )}
+      </DropdownButton>
+      {customCategory !== null && (
+        <div style={{ display: "flex" }}>
+          <Form.Control
+            value={customCategory}
+            onChange={(e) => setCustomCategory(e.currentTarget.value)}
+          />
+          <Button
+            onClick={() => {
+              onChange(customCategory);
+              setCustomCategory(null);
+            }}
+          />
+        </div>
+      )}
+    </>
+  );
+};
+
 const Popup = () => {
   const { notes, setNotes } = useNotes();
+  const categories = [
+    ...new Set(
+      notes.map((note) => note.category).filter((c): c is string => !!c)
+    ),
+  ];
+  const [category, setCategory] = useState<string | null>(null);
   console.log(notes);
 
   return (
-    <div>
-      {notes.map((note) => (
-        <>
-          <input
-            value={note.subject}
-            onChange={(e) => {
-              const newSubject = e.currentTarget.value;
-              setNotes(
-                // TODO: this is super lazy lol, maybe an id?
-                notes.map((n) =>
-                  n.subject === note.subject ? { ...n, subject: newSubject } : n
+    <div style={{ padding: "10px" }}>
+      <div style={{ marginBottom: "20px" }}>
+        <div>Showing category:</div>
+        <CategoryDropdown
+          currentCategory={category}
+          categories={categories}
+          onChange={setCategory}
+        />
+      </div>
+      {notes
+        .filter((n) => (n.category ?? null) === category)
+        .map((note) => (
+          <div style={{ marginBottom: "20px" }}>
+            <div style={{ display: "flex" }}>
+              <Form.Control
+                value={note.subject}
+                onChange={(e) => {
+                  const newSubject = e.currentTarget.value;
+                  setNotes(
+                    notes.map((n) =>
+                      n.id === note.id ? { ...n, subject: newSubject } : n
+                    )
+                  );
+                }}
+              />
+              <Button
+                variant="danger"
+                onClick={() => setNotes(notes.filter((n) => n.id !== note.id))}
+              >
+                X
+              </Button>
+            </div>
+            <div>Category:</div>
+            <CategoryDropdown
+              currentCategory={note.category ?? null}
+              categories={categories}
+              onChange={(newCategory) =>
+                setNotes(
+                  notes.map((n) =>
+                    n.id === note.id ? { ...n, category: newCategory } : n
+                  )
                 )
-              );
-            }}
-          />
-          <button
-            onClick={() =>
-              setNotes(notes.filter((n) => n.subject !== note.subject))
-            }
-          >
-            X
-          </button>
-          <textarea
-            value={note.description}
-            onChange={(e) => {
-              const newText = e.currentTarget.value;
-              setNotes(
-                // TODO: this is super lazy lol, maybe an id?
-                notes.map((n) =>
-                  n.subject === note.subject
-                    ? { ...n, description: newText }
-                    : n
-                )
-              );
-            }}
-          />
-        </>
-      ))}
-      <button
+              }
+              allowCustom
+            />
+            <textarea
+              value={note.description}
+              onChange={(e) => {
+                const newText = e.currentTarget.value;
+                setNotes(
+                  notes.map((n) =>
+                    n.id === note.id ? { ...n, description: newText } : n
+                  )
+                );
+              }}
+            />
+          </div>
+        ))}
+      <Button
         onClick={() =>
           setNotes([...notes, { id: uuidv4(), subject: "", description: "" }])
         }
       >
         New note
-      </button>
+      </Button>
     </div>
   );
 };
