@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import ReactDOM from "react-dom/client";
 import { readNotesFromStorage } from "./localStorageNotes";
 
@@ -11,17 +12,45 @@ const AnnotatedEntity = ({
   matchedText: string;
   description: string;
 }) => {
+  const [wordRef, setWordRef] = useState<HTMLSpanElement | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const windowHeight = window.innerHeight;
+  const { x, y } = wordRef?.getBoundingClientRect() ?? { x: 0, y: 0 };
+
+  const tooltip = (
+    <div
+      className="tooltip-notes-tooltip"
+      style={{
+        // it's a little strange to me that we have to modify this by the window
+        // scroll, but it seems to work
+        bottom: `${windowHeight - window.scrollY - y}px`,
+        left: `${x}px`,
+      }}
+    >
+      <div className="tooltip-notes-subject">{subject}</div>
+      <div>{description}</div>
+    </div>
+  );
+
   return (
-    <span className="tooltip-notes-word">
+    <span
+      ref={setWordRef}
+      className="tooltip-notes-word"
+      onMouseOver={() => setIsHovered(true)}
+      onMouseOut={() => setIsHovered(false)}
+    >
       {matchedText}
-      <div className="tooltip-notes-tooltip">
-        <div className="tooltip-notes-subject">{subject}</div>
-        {/* TODO: better way to break */}
-        {/* <br /> */}
-        <div>{description}</div>
-      </div>
+      {isHovered && createPortal(tooltip, document.body)}
     </span>
   );
+};
+
+/**
+ * `word` separated by a non-letter in front and behind
+ */
+const regexForWord = (word: string) => {
+  return RegExp(`([^A-Za-z]|^)(${word})([^A-Za-z]|$)`);
 };
 
 const annotateInTextNode = (taggedNode: TaggedNode) => {
@@ -32,13 +61,15 @@ const annotateInTextNode = (taggedNode: TaggedNode) => {
   const textContent = taggedNode.node.textContent;
 
   // Find matched option in node.
-  const matchedText = taggedNode.annotatedNote.matchOptions.find((option) =>
-    textContent.includes(option)
+  const option = taggedNode.annotatedNote.matchOptions.find((option) =>
+    textContent.match(option.regex)
   )!;
-  console.log("word ", matchedText);
+  console.log("word ", option.text);
 
-  const start = textContent.indexOf(matchedText);
-  const end = start + matchedText.length;
+  const match = textContent.match(option.regex)!;
+  // the match may include a space before the word, if so add 1
+  const start = match.index! + match[0].indexOf(option.text);
+  const end = start + option.text.length;
 
   const beforeWord = document.createTextNode(textContent.slice(0, start));
   const container = document.createElement("span");
@@ -49,20 +80,19 @@ const annotateInTextNode = (taggedNode: TaggedNode) => {
   root.render(
     <AnnotatedEntity
       subject={taggedNode.annotatedNote.subject}
-      matchedText={matchedText}
+      matchedText={option.text}
       description={taggedNode.annotatedNote.description}
     />
   );
 };
 
-// TODO: better name?
-// type SubjectAndId = { noteId: string; text: string };
+type MatchOption = { text: string; regex: RegExp };
 
 export type AnnotatedNote = {
   id: string;
   subject: string;
   description: string;
-  matchOptions: string[];
+  matchOptions: MatchOption[];
 };
 
 type TaggedNode = {
@@ -81,7 +111,9 @@ const getMatchingTextNodes = (
   for (const elem of element.childNodes) {
     if (elem.nodeType === Node.TEXT_NODE) {
       for (const note of annotatedNotes) {
-        if (note.matchOptions.some((opt) => elem.textContent?.includes(opt))) {
+        if (
+          note.matchOptions.some((opt) => elem.textContent?.match(opt.regex))
+        ) {
           nodes.push({ node: elem, annotatedNote: note });
         }
       }
@@ -103,7 +135,10 @@ const onStartup = async () => {
     // last names of politicians
     const subjectSplit = subject.split(" ");
     const lastName = subjectSplit[subjectSplit.length - 1];
-    const matchOptions = [subject, lastName];
+    const matchOptions = [
+      { text: subject, regex: regexForWord(subject) },
+      { text: lastName, regex: regexForWord(lastName) },
+    ];
     const annotatedNote = { ...note, matchOptions };
     annotatedNotes.push(annotatedNote);
   }
