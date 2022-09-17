@@ -5,14 +5,16 @@ import { Note, readNotesFromStorage } from "./localStorageNotes";
 import { CategoryDropdown } from "./CategoryDropdown";
 import { AddNodePage } from "./AddNotePage";
 
-import AddIcon from "@mui/icons-material/Add";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
+import {
+  Card,
+  CardContent,
+  Fab,
+  IconButton,
+  Stack,
+  TextField,
+} from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import Fab from "@mui/material/Fab";
-import IconButton from "@mui/material/IconButton";
-import Stack from "@mui/material/Stack";
-import TextField from "@mui/material/TextField";
+import AddIcon from "@mui/icons-material/Add";
 
 const useNotes = (): {
   notes: Note[];
