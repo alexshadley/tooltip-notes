@@ -43,8 +43,12 @@ export const AddNodePage = ({
         onChange={setCategory}
         allowCustom
       />
-      <div style={{ display: "flex" }}>
+      <div style={{ display: "flex", justifyContent: "end", gap: "10px" }}>
+        <Button variant="outlined" onClick={onCancel}>
+          Cancel
+        </Button>
         <Button
+          variant="contained"
           onClick={() =>
             onNewNote({ id: uuidv4(), subject, description, category })
           }

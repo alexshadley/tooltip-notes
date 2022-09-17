@@ -106,9 +106,17 @@ const Popup = () => {
                       />
 
                       <CategoryDropdown
-                        currentCategory={category}
+                        currentCategory={note.category ?? null}
                         categories={categories}
-                        onChange={setCategory}
+                        onChange={(newCategory) =>
+                          setNotes(
+                            notes.map((n) =>
+                              n.id === note.id
+                                ? { ...n, category: newCategory }
+                                : n
+                            )
+                          )
+                        }
                       />
                     </Stack>
 
