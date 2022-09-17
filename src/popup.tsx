@@ -2,7 +2,28 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { Note, readNotesFromStorage } from "./localStorageNotes";
 import { v4 as uuidv4 } from "uuid";
-import { Button, Dropdown, DropdownButton, Form } from "react-bootstrap";
+import {
+  Button as ButtonOld,
+  Dropdown,
+  DropdownButton,
+  Form,
+} from "react-bootstrap";
+
+import Card from "@mui/material/Card";
+import CardHeader from "@mui/material/CardHeader";
+import CardContent from "@mui/material/CardContent";
+import CardActions from "@mui/material/CardActions";
+import Chip from "@mui/material/Chip";
+
+import TextField from "@mui/material/TextField";
+import Stack from "@mui/material/Stack";
+
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+
+import MenuItem from "@mui/material/MenuItem";
+
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 
 const useNotes = (): {
   notes: Note[];
@@ -59,7 +80,7 @@ const CategoryDropdown = ({
             value={customCategory}
             onChange={(e) => setCustomCategory(e.currentTarget.value)}
           />
-          <Button
+          <ButtonOld
             onClick={() => {
               onChange(customCategory);
               setCustomCategory(null);
@@ -83,6 +104,10 @@ const Popup = () => {
   const [category, setCategory] = useState<string | null>(null);
   console.log(notes);
 
+  const handleCategoryChange = (event: SelectChangeEvent) => {
+    setCategory(event.target.value as string);
+  };
+
   return (
     <div style={{ padding: "10px" }}>
       <div style={{ marginBottom: "20px" }}>
@@ -93,62 +118,79 @@ const Popup = () => {
           onChange={setCategory}
         />
       </div>
+
       {notes
         .filter((n) => (n.category ?? null) === category)
         .map((note) => (
-          <div style={{ marginBottom: "20px" }}>
-            <div style={{ display: "flex" }}>
-              <Form.Control
-                value={note.subject}
-                onChange={(e) => {
-                  const newSubject = e.currentTarget.value;
-                  setNotes(
-                    notes.map((n) =>
-                      n.id === note.id ? { ...n, subject: newSubject } : n
-                    )
-                  );
-                }}
-              />
-              <Button
-                variant="danger"
-                onClick={() => setNotes(notes.filter((n) => n.id !== note.id))}
-              >
-                X
-              </Button>
-            </div>
-            <div>Category:</div>
-            <CategoryDropdown
-              currentCategory={note.category ?? null}
-              categories={categories}
-              onChange={(newCategory) =>
-                setNotes(
-                  notes.map((n) =>
-                    n.id === note.id ? { ...n, category: newCategory } : n
-                  )
-                )
-              }
-              allowCustom
-            />
-            <textarea
-              value={note.description}
-              onChange={(e) => {
-                const newText = e.currentTarget.value;
-                setNotes(
-                  notes.map((n) =>
-                    n.id === note.id ? { ...n, description: newText } : n
-                  )
-                );
-              }}
-            />
-          </div>
+          <Card sx={{ minWidth: 275 }}>
+            <CardContent>
+              <Stack direction="column" spacing={1}>
+                <Stack direction="row" spacing={1}>
+                  <TextField
+                    variant="standard"
+                    value={note.subject}
+                    onChange={(e) => {
+                      const newSubject = e.currentTarget.value;
+                      setNotes(
+                        notes.map((n) =>
+                          n.id === note.id ? { ...n, subject: newSubject } : n
+                        )
+                      );
+                    }}
+                  />
+
+                  <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    label={category}
+                    onChange={handleCategoryChange}
+                  >
+                    {categories.map((c) => (
+                      <MenuItem value={c}>{c}</MenuItem>
+                    ))}
+                  </Select>
+                </Stack>
+
+                <Stack direction="row">
+                  <TextField
+                    id="outlined-multiline-flexible"
+                    multiline
+                    rows={1}
+                    value={note.description}
+                    onChange={(e) => {
+                      const newText = e.currentTarget.value;
+                      setNotes(
+                        notes.map((n) =>
+                          n.id === note.id ? { ...n, description: newText } : n
+                        )
+                      );
+                    }}
+                  />
+                </Stack>
+
+                <Stack direction="row" alignItems="flex-end">
+                  <IconButton
+                    aria-label="delete"
+                    size="small"
+                    onClick={() =>
+                      setNotes(notes.filter((n) => n.id !== note.id))
+                    }
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Stack>
+            </CardContent>
+          </Card>
         ))}
-      <Button
+
+      <ButtonOld
         onClick={() =>
           setNotes([...notes, { id: uuidv4(), subject: "", description: "" }])
         }
       >
         New note
-      </Button>
+      </ButtonOld>
     </div>
   );
 };
