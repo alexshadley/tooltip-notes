@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { Note, readNotesFromStorage } from "./localStorageNotes";
 import { v4 as uuidv4 } from "uuid";
 import { Button, Dropdown, DropdownButton, Form } from "react-bootstrap";
+import { MenuItem, Select, TextField } from "@mui/material";
 
 const useNotes = (): {
   notes: Note[];
@@ -40,22 +41,29 @@ const CategoryDropdown = ({
 
   return (
     <>
-      <DropdownButton title={currentCategory ?? "Uncategorized"}>
-        <Dropdown.Item onClick={() => onChange(null)}>
-          Uncategorized
-        </Dropdown.Item>
+      <Select
+        title="Category"
+        value={currentCategory ?? "Uncategorized"}
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value === "__custom__") {
+            setCustomCategory("");
+          } else if (value === "__null__") {
+            onChange(null);
+          } else {
+            onChange(value);
+          }
+        }}
+      >
+        <MenuItem value="__null__">Uncategorized</MenuItem>
         {categories.map((c) => (
-          <Dropdown.Item onClick={() => onChange(c)}>{c}</Dropdown.Item>
+          <MenuItem value={c}>{c}</MenuItem>
         ))}
-        {allowCustom && (
-          <Dropdown.Item onClick={() => setCustomCategory("")}>
-            Custom
-          </Dropdown.Item>
-        )}
-      </DropdownButton>
+        {allowCustom && <MenuItem value="__custom__">Custom</MenuItem>}
+      </Select>
       {customCategory !== null && (
         <div style={{ display: "flex" }}>
-          <Form.Control
+          <TextField
             value={customCategory}
             onChange={(e) => setCustomCategory(e.currentTarget.value)}
           />
@@ -64,14 +72,47 @@ const CategoryDropdown = ({
               onChange(customCategory);
               setCustomCategory(null);
             }}
-          />
+          >
+            Add
+          </Button>
         </div>
       )}
     </>
   );
 };
 
-const NewNote = () => {};
+const NewNote = ({
+  categories,
+  onNewNote,
+}: {
+  categories: string[];
+  onNewNote: (newNote: Note) => void;
+}) => {
+  const [subject, setSubject] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<string | null>(null);
+  return (
+    <div>
+      <TextField label="Subject" />
+      <TextField label="Description" multiline />
+      <CategoryDropdown
+        currentCategory={category}
+        categories={categories}
+        onChange={setCategory}
+        allowCustom
+      />
+      <div style={{ display: "flex" }}>
+        <Button
+          onClick={() =>
+            onNewNote({ id: uuidv4(), subject, description, category })
+          }
+        >
+          Add
+        </Button>
+      </div>
+    </div>
+  );
+};
 
 const Popup = () => {
   const { notes, setNotes } = useNotes();
@@ -85,6 +126,10 @@ const Popup = () => {
 
   return (
     <div style={{ padding: "10px" }}>
+      <NewNote
+        categories={categories}
+        onNewNote={(newNote) => setNotes([...notes, newNote])}
+      />
       <div style={{ marginBottom: "20px" }}>
         <div>Showing category:</div>
         <CategoryDropdown
