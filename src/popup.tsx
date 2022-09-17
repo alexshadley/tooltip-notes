@@ -1,27 +1,18 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+
 import { Note, readNotesFromStorage } from "./localStorageNotes";
-import { v4 as uuidv4 } from "uuid";
-import { Button, Form } from "react-bootstrap";
-
-import Card from "@mui/material/Card";
-import CardHeader from "@mui/material/CardHeader";
-import CardContent from "@mui/material/CardContent";
-import CardActions from "@mui/material/CardActions";
-import Chip from "@mui/material/Chip";
-
-import TextField from "@mui/material/TextField";
-import Stack from "@mui/material/Stack";
-
-import IconButton from "@mui/material/IconButton";
-import DeleteIcon from "@mui/icons-material/Delete";
-
-import MenuItem from "@mui/material/MenuItem";
-
-import Select, { SelectChangeEvent } from "@mui/material/Select";
-
 import { CategoryDropdown } from "./CategoryDropdown";
 import { AddNodePage } from "./AddNotePage";
+
+import AddIcon from "@mui/icons-material/Add";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CloseIcon from "@mui/icons-material/Close";
+import Fab from "@mui/material/Fab";
+import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+import TextField from "@mui/material/TextField";
 
 const useNotes = (): {
   notes: Note[];
@@ -56,10 +47,6 @@ const Popup = () => {
   const [category, setCategory] = useState<string | null>(null);
   console.log(notes);
 
-  const handleCategoryChange = (event: SelectChangeEvent) => {
-    setCategory(event.target.value as string);
-  };
-
   return (
     <div style={{ padding: "10px" }}>
       {currentPage === "add" && (
@@ -74,8 +61,7 @@ const Popup = () => {
       )}
 
       {currentPage === "view" && (
-        <>
-          <Button onClick={() => setCurrentPage("add")}>Add Note</Button>
+        <Stack spacing={2}>
           <div style={{ marginBottom: "20px" }}>
             <div>Showing category:</div>
             <CategoryDropdown
@@ -91,6 +77,18 @@ const Popup = () => {
               <Card sx={{ minWidth: 275 }}>
                 <CardContent>
                   <Stack direction="column" spacing={1}>
+                    <Stack direction="row" justifyContent="flex-end">
+                      <IconButton
+                        aria-label="delete"
+                        size="small"
+                        onClick={() =>
+                          setNotes(notes.filter((n) => n.id !== note.id))
+                        }
+                      >
+                        <CloseIcon sx={{ fontSize: "12px" }}></CloseIcon>
+                      </IconButton>
+                    </Stack>
+
                     <Stack direction="row" spacing={1}>
                       <TextField
                         variant="standard"
@@ -107,23 +105,18 @@ const Popup = () => {
                         }}
                       />
 
-                      <Select
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        label={category}
-                        onChange={handleCategoryChange}
-                      >
-                        {categories.map((c) => (
-                          <MenuItem value={c}>{c}</MenuItem>
-                        ))}
-                      </Select>
+                      <CategoryDropdown
+                        currentCategory={category}
+                        categories={categories}
+                        onChange={setCategory}
+                      />
                     </Stack>
 
                     <Stack direction="row">
                       <TextField
-                        id="outlined-multiline-flexible"
                         multiline
-                        rows={1}
+                        maxRows={4}
+                        variant="standard"
                         value={note.description}
                         onChange={(e) => {
                           const newText = e.currentTarget.value;
@@ -137,23 +130,21 @@ const Popup = () => {
                         }}
                       />
                     </Stack>
-
-                    <Stack direction="row" alignItems="flex-end">
-                      <IconButton
-                        aria-label="delete"
-                        size="small"
-                        onClick={() =>
-                          setNotes(notes.filter((n) => n.id !== note.id))
-                        }
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </Stack>
                   </Stack>
                 </CardContent>
               </Card>
             ))}
-        </>
+
+          <Stack direction="row" justifyContent="flex-end">
+            <Fab
+              color="primary"
+              aria-label="add"
+              onClick={() => setCurrentPage("add")}
+            >
+              <AddIcon />
+            </Fab>
+          </Stack>
+        </Stack>
       )}
     </div>
   );
