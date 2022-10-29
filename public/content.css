@@ -17,10 +17,10 @@
   /* usually an antipattern, but we need it here */
   all: initial;
   position: absolute;
-  bottom: 16px;
-  left: 0;
+  /* bottom: 16px;
+  left: 0; */
   width: 200px;
-  display: none;
+  /* display: none; */
   padding: 6px;
   border: 1px solid lightgray;
   border-radius: 6px;
