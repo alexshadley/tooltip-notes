@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 
 import { Note, readNotesFromStorage } from "./localStorageNotes";
 import { CategoryDropdown } from "./CategoryDropdown";
+import { CategoryChip } from "./CategoryChip";
 import { AddNodePage } from "./AddNotePage";
 
 import {
@@ -64,74 +65,67 @@ const Popup = () => {
 
       {currentPage === "view" && (
         <Stack spacing={2}>
-          <div style={{ marginBottom: "20px" }}>
-            <div>Showing category:</div>
-            <CategoryDropdown
-              currentCategory={category}
-              categories={categories}
-              onChange={setCategory}
-            />
-          </div>
+          <CategoryDropdown
+            currentCategory={category}
+            categories={categories}
+            onChange={setCategory}
+          />
 
           {notes
             .filter((n) => (n.category ?? null) === category)
             .map((note) => (
               <Card sx={{ minWidth: 275 }}>
                 <CardContent>
-                  <Stack direction="column" spacing={1}>
-                    <Stack direction="row" justifyContent="flex-end">
-                      <IconButton
-                        aria-label="delete"
-                        size="small"
-                        onClick={() =>
-                          setNotes(notes.filter((n) => n.id !== note.id))
-                        }
-                      >
-                        <CloseIcon sx={{ fontSize: "12px" }}></CloseIcon>
-                      </IconButton>
-                    </Stack>
+                  <Stack direction="row" justifyContent="flex-end">
+                    <IconButton
+                      aria-label="delete"
+                      size="small"
+                      onClick={() =>
+                        setNotes(notes.filter((n) => n.id !== note.id))
+                      }
+                    >
+                      <CloseIcon sx={{ fontSize: "12px" }}></CloseIcon>
+                    </IconButton>
+                  </Stack>
 
-                    <Stack direction="row" spacing={1}>
-                      <TextField
-                        variant="standard"
-                        value={note.subject}
-                        onChange={(e) => {
-                          const newSubject = e.currentTarget.value;
-                          setNotes(
-                            notes.map((n) =>
-                              n.id === note.id
-                                ? { ...n, subject: newSubject }
-                                : n
-                            )
-                          );
-                        }}
-                      />
+                  <Stack direction="row" spacing={1}>
+                    <TextField
+                      variant="standard"
+                      value={note.subject}
+                      onChange={(e) => {
+                        const newSubject = e.currentTarget.value;
+                        setNotes(
+                          notes.map((n) =>
+                            n.id === note.id ? { ...n, subject: newSubject } : n
+                          )
+                        );
+                      }}
+                    />
 
-                      <CategoryDropdown
-                        currentCategory={category}
-                        categories={categories}
-                        onChange={setCategory}
-                      />
-                    </Stack>
+                    <CategoryChip
+                      currentCategory={category}
+                      categories={categories}
+                      onChange={setCategory}
+                    />
+                  </Stack>
 
-                    <Stack direction="row">
-                      <TextField
-                        multiline
-                        maxRows={4}
-                        variant="standard"
-                        value={note.description}
-                        onChange={(e) => {
-                          const newText = e.currentTarget.value;
-                          setNotes(
-                            notes.map((n) =>
-                              n.id === note.id
-                                ? { ...n, description: newText }
-                                : n
-                            )
-                          );
-                        }}
-                      />
-                    </Stack>
+                  <Stack direction="row">
+                    <TextField
+                      multiline
+                      maxRows={4}
+                      variant="standard"
+                      value={note.description}
+                      onChange={(e) => {
+                        const newText = e.currentTarget.value;
+                        setNotes(
+                          notes.map((n) =>
+                            n.id === note.id
+                              ? { ...n, description: newText }
+                              : n
+                          )
+                        );
+                      }}
+                    />
                   </Stack>
                 </CardContent>
               </Card>
