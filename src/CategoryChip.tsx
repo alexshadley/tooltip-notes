@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { colorForCategory } from "./CategoryColors";
 import { Chip, MenuItem, Select, TextField } from "@mui/material";
 
 export const CategoryChip = ({
@@ -45,7 +45,7 @@ export const CategoryChip = ({
 
         {categories.map((c) => (
           <MenuItem value={c}>
-            <Chip label={c} />
+            <Chip label={c} style={{ backgroundColor: colorForCategory(c) }} />
           </MenuItem>
         ))}
 
