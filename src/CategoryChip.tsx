@@ -24,6 +24,7 @@ export const CategoryChip = ({
           ".MuiOutlinedInput-notchedOutline": { border: 0 },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": { border: 0 },
         }}
+        SelectDisplayProps={{ style: { paddingTop: 0, paddingBottom: 0 } }}
         value={
           customCategory !== null ? "__custom__" : currentCategory ?? "__null__"
         }

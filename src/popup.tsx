@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
+import { grey } from "@mui/material/colors";
 
 const useNotes = (): {
   notes: Note[];
@@ -75,22 +76,15 @@ const Popup = () => {
             .filter((n) => (n.category ?? null) === category)
             .map((note) => (
               <Card sx={{ minWidth: 275 }}>
-                <CardContent>
-                  <Stack direction="row" justifyContent="flex-end">
-                    <IconButton
-                      aria-label="delete"
-                      size="small"
-                      onClick={() =>
-                        setNotes(notes.filter((n) => n.id !== note.id))
-                      }
-                    >
-                      <CloseIcon sx={{ fontSize: "12px" }}></CloseIcon>
-                    </IconButton>
-                  </Stack>
-
+                <CardContent style={{ backgroundColor: grey[100] }}>
                   <Stack direction="row" spacing={1}>
                     <TextField
+                      multiline
                       variant="standard"
+                      InputProps={{
+                        disableUnderline: true,
+                        style: { fontSize: 14, fontWeight: "bold" },
+                      }}
                       value={note.subject}
                       onChange={(e) => {
                         const newSubject = e.currentTarget.value;
@@ -115,13 +109,27 @@ const Popup = () => {
                         )
                       }
                     />
+
+                    <IconButton
+                      aria-label="delete"
+                      size="small"
+                      onClick={() =>
+                        setNotes(notes.filter((n) => n.id !== note.id))
+                      }
+                    >
+                      <CloseIcon sx={{ fontSize: "12px" }}></CloseIcon>
+                    </IconButton>
                   </Stack>
 
                   <Stack direction="row">
                     <TextField
                       multiline
-                      maxRows={4}
+                      fullWidth
                       variant="standard"
+                      InputProps={{
+                        disableUnderline: true,
+                        style: { fontSize: 12 },
+                      }}
                       value={note.description}
                       onChange={(e) => {
                         const newText = e.currentTarget.value;
