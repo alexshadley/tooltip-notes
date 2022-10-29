@@ -38,13 +38,21 @@ export const CategoryChip = ({
           }
         }}
       >
-        <MenuItem value="__null__">Uncategorized</MenuItem>
+        <MenuItem value="__null__">
+          <Chip label="Uncategorized" />
+        </MenuItem>
+
         {categories.map((c) => (
           <MenuItem value={c}>
             <Chip label={c} />
           </MenuItem>
         ))}
-        {allowCustom && <MenuItem value="__custom__">Custom</MenuItem>}
+
+        {allowCustom && (
+          <MenuItem value="__custom__">
+            <Chip label="Custom" />
+          </MenuItem>
+        )}
       </Select>
 
       {customCategory !== null && (
