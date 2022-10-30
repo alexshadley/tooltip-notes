@@ -18,41 +18,34 @@ export const CategoryDropdown = ({
 
   return (
     <>
-      <div style={{ display: "flex" }}>
-        <Select
-          label="Category"
-          value={
-            customCategory !== null
-              ? "__custom__"
-              : currentCategory ?? "__null__"
+      <Select
+        id="categoryTitle"
+        label="Category"
+        sx={{
+          ".MuiOutlinedInput-notchedOutline": { border: 0 },
+          "&.Mui-focused .MuiOutlinedInput-notchedOutline": { border: 0 },
+        }}
+        value={
+          customCategory !== null ? "__custom__" : currentCategory ?? "__null__"
+        }
+        onChange={(e) => {
+          const value = e.target.value;
+          if (value === "__custom__") {
+            setCustomCategory("");
+          } else if (value === "__null__") {
+            onChange(null);
+          } else {
+            onChange(value);
           }
-          onChange={(e) => {
-            const value = e.target.value;
-            if (value === "__custom__") {
-              setCustomCategory("");
-            } else if (value === "__null__") {
-              onChange(null);
-            } else {
-              onChange(value);
-            }
-          }}
-        >
-          <MenuItem value="__null__">Uncategorized</MenuItem>
-          {categories.map((c) => (
-            <MenuItem value={c}>{c}</MenuItem>
-          ))}
-          {allowCustom && <MenuItem value="__custom__">Custom</MenuItem>}
-        </Select>
-        {currentCategory && (
-          <div
-            style={{
-              backgroundColor: colorForCategory(currentCategory),
-              width: "20px",
-              height: "20px",
-            }}
-          />
-        )}
-      </div>
+        }}
+      >
+        <MenuItem value="__null__">Uncategorized</MenuItem>
+        {categories.map((c) => (
+          <MenuItem value={c}>{c}</MenuItem>
+        ))}
+        {allowCustom && <MenuItem value="__custom__">Custom</MenuItem>}
+      </Select>
+
       {customCategory !== null && (
         <div style={{ display: "flex" }}>
           <TextField

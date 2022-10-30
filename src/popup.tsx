@@ -65,7 +65,7 @@ const Popup = () => {
       )}
 
       {currentPage === "view" && (
-        <Stack spacing={2}>
+        <Stack spacing={2} justifyContent="center">
           <CategoryDropdown
             currentCategory={category}
             categories={categories}
